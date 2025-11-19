@@ -1,49 +1,114 @@
-# Exploring the Impact of Feature Transformation on Machine Learning Model Performance
+# Exploring the Impact of Feature Transformation on Housing Price Prediction
+## Project Overview
+This research project investigates the impact of advanced feature engineering techniques (specifically feature transformation and creation) on the performance of various machine learning models used to predict California housing prices.
 
-##  Abstract
+Accurate housing price prediction is critical for informed decision-making in the real estate market. The study aims to identify effective feature engineering strategies that enhance model accuracy and interpretability by comparing performance across three distinct feature sets:
 
-This project investigates the impact of feature transformation techniques on machine learning model performance. We compare scaling, normalization, and encoding approaches to assess their effect on predictive accuracy and model robustness, using Root Mean Squared Error (RMSE) as the evaluation metric.
+Baseline: Only imputation, scaling, and one-hot encoding applied.
 
-This study finds that feature engineering significantly affects model performance. Although the improvement wasn't dramatic, we observed a consistent increase in performance across models. This project demonstrates the importance of feature engineering in machine learning and highlights the need for careful consideration of transformation techniques.
+Basic Feature Creation: Baseline + ratio-based features (rooms_per_household, bedrooms_per_room, population_per_household).
 
----
+Advanced Feature Engineering: Basic Features + calculated spatial features (distance_to_los_angeles, distance_to_san_francisco).
 
-##  Background
-Feature transformation is a crucial step in the machine learning pipeline. It reshapes raw data into a format that enhances model learning. However, the impact of each transformation technique can vary depending on data structure, feature distribution, and the model applied.
+## Research Question
+How does applying feature transformation and creation techniques impact the performance of machine learning models in predicting California housing prices?
 
-This study aims to provide an empirical comparison of transformation effects across several algorithms, highlighting their advantages and limitations in predictive modeling.
+## Data and Preparation
+The project uses the California Housing Data from Kaggle.
 
----
+Data Exploration Highlights
 
-##  Methodology
-1. **Data Preparation** – Cleaned and preprocessed a dataset with missing and numerical features.  
-2. **Transformation Techniques** – Applied scaling (StandardScaler) and encoding (One-Hot).  
-3. **Model Training** – Trained baseline models including KNN, Linear Regression, and Decision Tree Regressor.  
-4. **Evaluation Metrics** – Computed  RMSE for performance comparison.  
-5. **Analysis** – Interpreted results to identify which transformations yield the best model performance.
+The dataset contains 20,640 entries with 10 features, including demographic, geographic, and housing-related attributes.
 
----
+The total_bedrooms feature had 207 missing values, which were later imputed.
 
-##  Key Findings
-- MinMax scaling significantly improved model performance.
-- Normalization reduced variance sensitivity in regression models.
-- Encoding techniques had varying effects depending on data sparsity.
+The target variable, median_house_value, and several other numerical features exhibited skewed distributions (as visible in the generated histograms), suggesting that transformation techniques could be beneficial. * Stratified Sampling was performed based on a binned median_income category (income_cat) to ensure the training and testing sets are representative of the overall income distribution.
 
----
+Preprocessing and Feature Engineering
 
-## Technologies Used
-- **Python**, **scikit-learn**, **pandas**, **NumPy**, **matplotlib**
-- **Jupyter Notebook** for experimental documentation.
+The following steps were implemented to prepare the data:
 
----
+Missing Value Imputation: Missing values in numerical columns (specifically total_bedrooms) were filled using the median strategy.
 
-## Repository Structure
+Categorical Encoding: The ocean_proximity categorical feature was converted into numerical format using One-Hot Encoding.
 
-* `data/` contains the dataset, with subdirectories for raw and processed data.
-* `src/` contains the source code, broken down into smaller notebooks or Python files for data loading, feature engineering, modeling, and utilities.
-* `main.ipynb` is your main notebook that imports and uses the code from `src/`.
-* `requirements.txt` lists the dependencies required to run your project.
-* `README.md` provides an overview of your project, including instructions for running the code and reproducing the results.
+Feature Scaling: All numerical features were standardized using StandardScaler.
+
+Feature Creation (Basic):
+
+- rooms_per_household = total_rooms / households
+
+- bedrooms_per_room = total_bedrooms / total_rooms
+
+- population_per_household = population / households
+
+- Feature Creation (Advanced/Spatial):
+
+Calculated Haversine distance (in kilometers) from each district to two major California cities: Los Angeles and San Francisco.
+
+## Modeling and Results
+The performance of six different regression models was evaluated on the test set using the Root Mean Squared Error (RMSE) metric.
+
+Baseline Model Performance (No Feature Creation)
+
+
+| Model Name | RMSE (USD) |
+| --- | --- |
+| Linear Regression | 67,354.15 |
+| Random Forest | 53,746.73 |
+| Support Vector Machine | 116,889.19 |
+| K-Nearest Neighbors | 60,685.25 |
+| Decision Tree | 75,035035.85 |
+| Gradient Boosting | 55,485.85 |
+
+The Random Forest Regressor was the best-performing model in the baseline test.	
+Basic Feature Creation Performance (Ratios Added)
+
+
+| Model Name | RMSE (USD) |
+| --- | --- |
+| Linear Regression | 67,407.78 |
+| Random Forest | 53,253.14 |
+| Support Vector Machine | 117,256.63 |
+| K-Nearest Neighbors | 66,817.04 |
+| Decision Tree | 74,521.51 |
+| Gradient Boosting | 54,832.72 |
+
+The addition of basic ratio features slightly improved the performance of the Random Forest model (RMSE decreased from 53,746.73 to 53,253.14).	
+Advanced Feature Engineering Performance (Ratios + Distance Added)
+
+
+| Model Name | RMSE (USD) |
+| --- | --- |
+| Linear Regression | 66,839.81 |
+| Random Forest | 54,651.74 |
+| Support Vector Machine | 117,256.68 |
+| K-Nearest Neighbors | 75,765.24 |
+| Decision Tree | 74,828.98 |
+| Gradient Boosting | 54,395.60 |
+
+In this round, the Gradient Boosting model achieved the best RMSE, though the overall improvement in performance was inconsistent across all models compared to the basic feature creation set.	
+
+## Hyperparameter Tuning (Random Forest Regressor)
+
+The Random Forest Regressor was selected for in-depth hyperparameter tuning using GridSearchCV due to its strong and consistent performance. The optimal parameters were identified across the three feature sets.
+
+Feature Set	Best Hyperparameters	Tuned RMSE (5-fold CV)
+Baseline	{'bootstrap': False, 'max_features': 8, 'n_estimators': 30}	49,659.14
+Basic Features	{'bootstrap': False, 'max_features': 8, 'n_estimators': 30}	49,762.81
+Advanced Features	{'bootstrap': False, 'max_features': 6, 'n_estimators': 30}	47,230.76
+The Advanced Feature Engineering set, combined with hyperparameter tuning, yielded the best performance with an RMSE of 47,230.76. This represents a significant improvement of approximately 12.2% compared to the best untuned baseline model (53,746.73).
+
+## Conclusion
+The study successfully demonstrates that feature transformation and creation significantly enhance the predictive performance of machine learning models for California housing prices.
+
+The Random Forest Regressor consistently proved to be one of the most effective models.
+
+The most substantial performance gain was achieved by combining advanced feature engineering (incorporating calculated ratios and spatial distance features) with hyperparameter tuning, resulting in the lowest overall RMSE of 47,230.76 USD.
+
+Engineered features, such as rooms per household and distance metrics, were implicitly identified as highly influential, confirming the importance of feature quality in capturing meaningful socioeconomic and geographic patterns in housing data.
+
+
 
 
 
